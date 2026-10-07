@@ -37,17 +37,16 @@ pip install '.[ray]'
 
 ## 命令入口
 
+安装 scTIER 后，直接使用两个模块的命令：
+
 ```bash
-scTIER --help
-scTIER --version
-scTIER scASprofiler --help
-scTIER scASprofiler perp --help
-scTIER scASprofiler impute --help
-scTIER scASprofiler quantify --help
-scTIER scGIFT --help
+scASprofiler perp run --help
+scASprofiler impute train --help
+scASprofiler quantify --help
+scGIFT --help
 ```
 
-`sctier` 与 `scTIER` 等价，也可用 `python -m sctier`。同时保留独立命令 `scASprofiler`、`scASprofiler-perp`、`scASprofiler-impute`、`scASprofiler-quantify`、`scGIFT`。若环境中已有独立 scASprofiler 安装，建议新建环境，避免同名命令覆盖。
+scTIER 是安装包名称。日常执行直接使用 `scASprofiler` 和 `scGIFT`，无需添加 `scTIER` 前缀。若环境中已有独立 scASprofiler 安装，建议新建环境，避免同名命令覆盖。
 
 ## scASprofiler
 
@@ -56,7 +55,7 @@ scTIER scGIFT --help
 ### 剪接位点预处理
 
 ```bash
-scTIER scASprofiler perp run \
+scASprofiler perp run \
   --sj-dir ./SJ_files --gtf ./annotation.gtf --outdir ./out_perp
 # 10x 数据在上述命令末尾加 --x10
 ```
@@ -66,12 +65,12 @@ scTIER scASprofiler perp run \
 ### 训练与插补
 
 ```bash
-scTIER scASprofiler impute train \
+scASprofiler impute train \
   --data-Sj ./out_perp/filter_sj_counts.csv \
   --data-c ./cell_labels.csv \
   --outdir ./out_impute --n-epochs 200 --run-impute
 
-scTIER scASprofiler impute impute \
+scASprofiler impute impute \
   --data-Sj ./out_perp/filter_sj_counts.csv \
   --data-c ./cell_labels.csv \
   --outdir ./out_impute --decoder-ckpt ./out_impute/models/example-dec_best.pt
@@ -82,7 +81,7 @@ scTIER scASprofiler impute impute \
 ### AS 比例计算
 
 ```bash
-scTIER scASprofiler quantify \
+scASprofiler quantify \
   --input-file ./imputed_junction_counts.csv --outdir ./out_as
 ```
 
@@ -99,7 +98,7 @@ scTIER scASprofiler quantify \
 | `--iso2gene` | `(n_isoforms,)`，整数索引，第 i 个异构体对应基因矩阵的哪一列，从 0 开始 |
 
 ```bash
-scTIER scGIFT \
+scGIFT \
   --gene_counts ./gene_counts.npy \
   --iso_counts ./iso_counts.npy \
   --iso2gene ./iso2gene.npy \
@@ -107,7 +106,7 @@ scTIER scGIFT \
   --alpha_iso 1.0 --seed 42 --outdir ./out_scgift
 ```
 
-也可直接运行 `scGIFT ...`。默认自动选择 CUDA 或 CPU；`--device cpu` 强制 CPU，`--device cuda` 强制 CUDA。保持原脚本的确定性训练设置。
+默认自动选择 CUDA 或 CPU；`--device cpu` 强制 CPU，`--device cuda` 强制 CUDA。保持原脚本的确定性训练设置。
 
 输出：`embedding.npy` 为后验均值 `(n_cells, n_topics)`，`theta.npy` 为主题比例（每行和为 1），`model.pt` 为 PyTorch state dict。输出细胞顺序与输入一致。保存模型参数不包含词表、索引映射或超参数，请同时保留这些输入和训练命令以便复用。
 
