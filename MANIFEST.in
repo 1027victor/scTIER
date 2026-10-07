@@ -1,0 +1,3 @@
+include LICENSE README.md UPSTREAM.md
+recursive-include tests *.py
+recursive-include .github *.yml

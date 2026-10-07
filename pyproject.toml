@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scTIER"
+version = "0.1.0"
+description = "Single-cell alternative splicing analysis and gene/isoform topic fusion"
+readme = "README.md"
+requires-python = ">=3.10.9"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+authors = [{name = "1027victor"}]
+dependencies = ["click>=8.0", "numpy>=1.24", "pandas>=2.0", "torch>=2.0", "tqdm>=4.64"]
+
+[project.optional-dependencies]
+ray = ["ray[default]>=2.0"]
+dev = ["pytest>=7", "build>=1"]
+
+[project.urls]
+Repository = "https://github.com/1027victor/scTIER"
+Upstream = "https://github.com/1027victor/scASprofiler"
+
+[project.scripts]
+scTIER = "sctier.cli:main"
+sctier = "sctier.cli:main"
+scASprofiler = "sctier.cli:scasprofiler"
+scASprofiler-perp = "sctier.cli:perp"
+scASprofiler-impute = "sctier.cli:impute"
+scASprofiler-quantify = "sctier.cli:quantify"
+scGIFT = "sctier.scGIFT.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["sctier*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
