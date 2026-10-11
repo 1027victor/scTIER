@@ -1,6 +1,6 @@
 # scTIER
 
-**Single-cell alternative splicing analysis and gene–isoform topic fusion.**
+**a computational framework for multi-level transcriptomic analysis in single cells**
 
 [![Tests](https://github.com/1027victor/scTIER/actions/workflows/tests.yml/badge.svg)](https://github.com/1027victor/scTIER/actions/workflows/tests.yml)
 [![Python](https://img.shields.io/badge/python-%3E%3D3.10.9-blue)](pyproject.toml)
