@@ -86,11 +86,11 @@ scGIFT \
   --gene_counts demo/gene_counts.npy \
   --iso_counts demo/iso_counts.npy \
   --iso2gene demo/iso2gene.npy \
-  --n_topics 3 --hid 16 --epochs 2 --batch_size 6 \
-  --device cpu --outdir demo/results
+  --n_topics 30 --hid 512 --epochs 200 --batch_size 256 \
+  --device auto --outdir out_isotopic
 ```
 
-Outputs are saved in `demo/results/`.
+The example uses the default training settings and saves outputs in `out_isotopic/`.
 
 </details>
 
