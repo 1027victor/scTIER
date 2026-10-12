@@ -20,13 +20,6 @@
 
 scTIER combines **scASprofiler** for alternative splicing analysis and **scGIFT** for gene–isoform integration. Both modules are installed together and run through their own commands.
 
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/workflow-dark.svg">
-    <img src="docs/assets/workflow-light.svg" width="1080" alt="Two scTIER workflows: splice junction analysis with scASprofiler, and gene–isoform topic fusion with scGIFT.">
-  </picture>
-</p>
-
 ## Installation
 
 Requires **Python ≥ 3.10.9**. Linux is the primary development platform.
