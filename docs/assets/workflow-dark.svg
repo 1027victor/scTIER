@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="340" viewBox="0 0 1080 340" role="img" aria-labelledby="title desc">
+<title id="title">scTIER analysis workflows</title>
+<desc id="desc">Two independent workflows: STAR splice junctions, annotation, and cell labels feed scASprofiler to produce imputed junction counts and AS ratios. Gene and isoform counts with an isoform-to-gene mapping feed scGIFT to produce cell embeddings and topic proportions.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 1 L 9 5 L 0 9" fill="none" stroke="#9da7b3" stroke-width="1.5"/></marker></defs>
+<rect x="1" y="1" width="1078" height="338" rx="20" fill="#0d1117" stroke="#30363d"/>
+<g font-family="Inter, Segoe UI, Arial, sans-serif">
+<text x="40" y="36" fill="#9da7b3" font-size="11" font-weight="600" letter-spacing="2">INPUT</text>
+<text x="405" y="36" fill="#9da7b3" font-size="11" font-weight="600" letter-spacing="2">MODULE</text>
+<text x="780" y="36" fill="#9da7b3" font-size="11" font-weight="600" letter-spacing="2">OUTPUT</text>
+<rect x="26" y="55" width="300" height="112" rx="13" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<rect x="384" y="55" width="310" height="112" rx="13" fill="#231d38" stroke="#b5a0ff" stroke-width="1"/>
+<rect x="752" y="55" width="302" height="112" rx="13" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<path d="M 332 111 H 378" stroke="#9da7b3" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 700 111 H 746" stroke="#9da7b3" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="45" y="101" fill="#e6edf3" font-size="18" font-weight="600">STAR splice junctions</text>
+<text x="45" y="131" fill="#9da7b3" font-size="13" font-weight="400">SJ.out.tab + GTF + cell labels</text>
+<text x="405" y="101" fill="#b5a0ff" font-size="23" font-weight="700">scASprofiler</text>
+<text x="405" y="131" fill="#9da7b3" font-size="14" font-weight="400">Preprocess · impute · quantify</text>
+<text x="773" y="101" fill="#e6edf3" font-size="18" font-weight="600">Imputed junction counts</text>
+<text x="773" y="131" fill="#9da7b3" font-size="14" font-weight="400">Alternative splicing ratios</text>
+<rect x="26" y="190" width="300" height="112" rx="13" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<rect x="384" y="190" width="310" height="112" rx="13" fill="#142f2b" stroke="#65d8c4" stroke-width="1"/>
+<rect x="752" y="190" width="302" height="112" rx="13" fill="#161b22" stroke="#30363d" stroke-width="1"/>
+<path d="M 332 246 H 378" stroke="#9da7b3" stroke-width="1.5" marker-end="url(#arrow)"/>
+<path d="M 700 246 H 746" stroke="#9da7b3" stroke-width="1.5" marker-end="url(#arrow)"/>
+<text x="45" y="236" fill="#e6edf3" font-size="18" font-weight="600">Gene + isoform counts</text>
+<text x="45" y="266" fill="#9da7b3" font-size="13" font-weight="400">Aligned cells + isoform-to-gene map</text>
+<text x="405" y="236" fill="#65d8c4" font-size="23" font-weight="700">scGIFT</text>
+<text x="405" y="266" fill="#9da7b3" font-size="14" font-weight="400">Gene–isoform topic fusion</text>
+<text x="773" y="236" fill="#e6edf3" font-size="18" font-weight="600">Cell embeddings</text>
+<text x="773" y="266" fill="#9da7b3" font-size="14" font-weight="400">Topic proportions</text>
+</g></svg>

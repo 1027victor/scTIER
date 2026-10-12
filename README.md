@@ -1,25 +1,35 @@
-# scTIER
+<h1 align="center">scTIER</h1>
 
-**a computational framework for multi-level transcriptomic analysis in single cells**
+<p align="center">
+  <strong>a computational framework for multi-level transcriptomic analysis in single cells</strong>
+</p>
 
-[![Tests](https://github.com/1027victor/scTIER/actions/workflows/tests.yml/badge.svg)](https://github.com/1027victor/scTIER/actions/workflows/tests.yml)
-[![Python](https://img.shields.io/badge/python-%3E%3D3.10.9-blue)](pyproject.toml)
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+<p align="center">
+  <a href="https://github.com/1027victor/scTIER/actions/workflows/tests.yml"><img src="https://github.com/1027victor/scTIER/actions/workflows/tests.yml/badge.svg" alt="Tests"></a>
+  <a href="pyproject.toml"><img src="https://img.shields.io/badge/Python-%E2%89%A53.10.9-3776AB?style=flat-square&amp;logo=python&amp;logoColor=white" alt="Python 3.10.9 or later"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-12866E?style=flat-square" alt="Apache 2.0 license"></a>
+</p>
 
-scTIER brings two analysis modules into one installable Python package:
+<p align="center">
+  <a href="#installation">Installation</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#scasprofiler">scASprofiler</a> ·
+  <a href="#scgift">scGIFT</a> ·
+  <a href="#resources">Resources</a>
+</p>
 
-| Module | Purpose | Command |
-| --- | --- | --- |
-| **scASprofiler** | Preprocess STAR splice junction counts, impute missing counts with a VAE-GAN and class-conditional KNN refinement, and calculate alternative splicing ratios. | `scASprofiler` |
-| **scGIFT** | Learn a shared cell representation from gene and isoform counts using a two-view neural topic model with within-gene isoform constraints. | `scGIFT` |
+scTIER combines **scASprofiler** for alternative splicing analysis and **scGIFT** for gene–isoform integration. Both modules are installed together and run through their own commands.
 
-Install scTIER once, then run either module directly from the command line. Both modules are included in the package and can be used independently.
-
-[Installation](#installation) · [Quick start](#quick-start) · [scASprofiler](#scasprofiler) · [scGIFT](#scgift) · [Development](#development) · [Support](#support-and-contributing)
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/workflow-dark.svg">
+    <img src="docs/assets/workflow-light.svg" width="1080" alt="Two scTIER workflows: splice junction analysis with scASprofiler, and gene–isoform topic fusion with scGIFT.">
+  </picture>
+</p>
 
 ## Installation
 
-Requires **Python 3.10.9 or later**. Linux is the primary development and validation platform. A dedicated environment avoids conflicts with an existing scASprofiler installation.
+Requires **Python ≥ 3.10.9**. Linux is the primary development platform.
 
 ```bash
 conda create -n sctier python=3.10 -y
@@ -27,7 +37,10 @@ conda activate sctier
 pip install git+https://github.com/1027victor/scTIER.git
 ```
 
-Alternatively, install from a local clone:
+For GPU use, install a compatible [PyTorch build](https://pytorch.org/get-started/locally/) before installing scTIER.
+
+<details>
+<summary><b>Local installation and optional Ray support</b></summary>
 
 ```bash
 git clone https://github.com/1027victor/scTIER.git
@@ -35,19 +48,17 @@ cd scTIER
 pip install .
 ```
 
-The installation includes Click, NumPy, pandas, PyTorch, and tqdm. For GPU execution, install a compatible PyTorch build using the [official PyTorch installation guide](https://pytorch.org/get-started/locally/) before installing scTIER.
-
-For optional Ray-based parallel preprocessing:
+To enable Ray-based parallel preprocessing with `--use-ray`:
 
 ```bash
 pip install 'scTIER[ray] @ git+https://github.com/1027victor/scTIER.git'
 ```
 
-STAR and Cell Ranger are separate upstream tools. The scASprofiler preprocessing command reads existing STAR `SJ.out.tab` files; it does not perform read alignment.
+</details>
 
 ## Quick start
 
-### Explore the command-line interface
+Use the module commands directly:
 
 ```bash
 scASprofiler perp run --help
@@ -56,11 +67,10 @@ scASprofiler quantify --help
 scGIFT --help
 ```
 
-**scTIER is the installation package name. Use `scASprofiler` and `scGIFT` directly for analysis, without a `scTIER` prefix.**
+<details>
+<summary><b>Try scGIFT with a small synthetic dataset</b></summary>
 
-### Run scGIFT on a small example
-
-Create aligned gene and isoform count matrices and an isoform-to-gene mapping:
+Generate count matrices for 12 cells, 3 genes, and 6 isoforms:
 
 ```bash
 python - <<'PY'
@@ -87,15 +97,17 @@ scGIFT \
   --device cpu --outdir demo/results
 ```
 
-This example verifies that the analysis runs and writes its outputs. Use appropriate model settings and training duration for your research dataset.
+Outputs are saved in `demo/results/`.
+
+</details>
 
 ## scASprofiler
 
-scASprofiler provides preprocessing, imputation, and AS ratio calculation. Detailed methods and upstream tutorials are available in the [scASprofiler documentation](https://scasprofiler.readthedocs.io/).
+Preprocess splice junctions, impute missing counts with a VAE-GAN and class-conditional KNN refinement, and quantify alternative splicing.
 
-### 1. Preprocess splice junction counts
+### 1. Preprocess
 
-Place the input `.SJ.out.tab` files directly inside `SJ_files/`, with unique filenames for each sample or cell, and supply a GTF annotation:
+Place STAR `.SJ.out.tab` files directly in `SJ_files/`, with a unique filename for each cell or sample, and supply a GTF annotation.
 
 ```bash
 scASprofiler perp run \
@@ -104,24 +116,23 @@ scASprofiler perp run \
   --outdir ./out_perp
 ```
 
-The default pipeline is for plate-based data. Add `--x10` to use the 10x pipeline. Adjust `--samples-ps`, `--sites-ps`, `--sites-thres`, and `--samples-thres` to suit the dataset size and coverage. Add `--use-ray` to enable parallel threshold filtering after installing the Ray extra.
+Plate-based processing is the default; add `--x10` for 10x data. Adjust `--samples-ps`, `--sites-ps`, `--sites-thres`, and `--samples-thres` for the dataset's size and coverage.
 
 | Output | Contents |
 | --- | --- |
 | `merged_sj.tab` | Merged splice junction records. |
-| `raw_sj_counts.csv` | Junction-by-cell count matrix, stored as a tab-separated file. |
-| `sj_meta.csv` | Filtered splice junction metadata, stored as a tab-separated file. |
-| `filter_sj_counts.csv` | Filtered count matrix with metadata columns, stored as a tab-separated file. |
+| `raw_sj_counts.csv` | Junction-by-cell count matrix. |
+| `sj_meta.csv` | Filtered splice junction metadata. |
+| `filter_sj_counts.csv` | Filtered counts and metadata for imputation. |
+
+All four preprocessing outputs are **tab-separated**, including files with a `.csv` extension.
 
 ### 2. Train and impute
 
-The imputation module expects:
-
-- **`--data-Sj`**: a tab-separated junction-by-cell matrix with a row index. The final three columns must be `intron_group`, `annotated`, and `coord.intron`. Missing counts are represented as NaN; observed zeros remain observed values.
-- **`--data-c`**: a single-column CSV with no header or index, containing one label per cell. Labels may be strings or numbers and are encoded automatically. Their row order must match the cell columns of the count matrix.
-- **`--clusters`**: at least the number of distinct cell labels. Use matching cluster and latent-dimension settings when reusing a checkpoint.
-
-Train the model and immediately run imputation:
+| Input | Format |
+| --- | --- |
+| `--data-Sj` | Tab-separated junction-by-cell matrix with a row index. The final three columns are `intron_group`, `annotated`, and `coord.intron`. Missing counts are NaN; each cell needs at least one positive count for normalization. |
+| `--data-c` | One-column CSV with no header or index, containing one label per cell in the same order as the matrix's cell columns. String or numeric labels are encoded automatically. |
 
 ```bash
 scASprofiler impute train \
@@ -132,9 +143,10 @@ scASprofiler impute train \
   --run-impute
 ```
 
-The example assumes four cell-label categories. Adjust `--clusters` for your input labels. The command saves the best encoder, decoder, and discriminator checkpoints under `out_impute/models/` and writes the imputed counts to `out_impute/scASP-example.csv`.
+Set `--clusters` to at least the number of label categories. This example saves model checkpoints in `out_impute/models/` and imputed counts in `out_impute/scASP-example.csv`.
 
-To impute with the saved decoder:
+<details>
+<summary><b>Impute with a trained decoder</b></summary>
 
 ```bash
 scASprofiler impute impute \
@@ -145,7 +157,11 @@ scASprofiler impute impute \
   --decoder-ckpt ./out_impute/models/example-100-200-4-dec_best.pt
 ```
 
-### 3. Calculate alternative splicing ratios
+Reuse the training matrix and label file, and keep `--clusters`, `--latent-dim`, and `--channels` consistent with training.
+
+</details>
+
+### 3. Quantify
 
 ```bash
 scASprofiler quantify \
@@ -153,25 +169,23 @@ scASprofiler quantify \
   --outdir ./out_as
 ```
 
-The command normalizes junction counts by their intron-group totals within each cell and writes `out_as/as_ratio.csv`.
+Writes `out_as/as_ratio.csv`, with junction counts normalized by their intron-group totals within each cell.
 
 ## scGIFT
 
-scGIFT jointly models gene expression and isoform usage to produce cell embeddings and topic proportions. Its gene decoder uses a softmax over genes, while its isoform decoder normalizes isoforms within their mapped gene.
+Integrate gene and isoform counts with a two-view neural topic model to obtain cell embeddings and topic proportions.
 
-### Input data
+### Inputs
 
-Provide three NumPy `.npy` files:
+| Argument | NumPy `.npy` array |
+| --- | --- |
+| `--gene_counts` | `(n_cells, n_genes)` — finite, nonnegative gene counts. |
+| `--iso_counts` | `(n_cells, n_isoforms)` — finite, nonnegative isoform counts. |
+| `--iso2gene` | `(n_isoforms,)` — integer gene-column indices from `0` to `n_genes - 1`. |
 
-| Argument | Shape | Requirements |
-| --- | --- | --- |
-| `--gene_counts` | `(n_cells, n_genes)` | Finite, nonnegative gene counts. |
-| `--iso_counts` | `(n_cells, n_isoforms)` | Finite, nonnegative isoform counts, with the same cell order as the gene matrix. |
-| `--iso2gene` | `(n_isoforms,)` | Integer mapping from each isoform to a gene column, using indices from `0` to `n_genes - 1`. |
+Both count matrices must use the same cell order. The isoform columns must follow the order of `iso2gene`.
 
-The isoform column order must match `iso2gene`. These are gene and isoform count inputs; the scASprofiler junction matrix is not an automatic substitute for isoform counts.
-
-### Train the fusion model
+### Run
 
 ```bash
 scGIFT \
@@ -182,54 +196,52 @@ scGIFT \
   --alpha_iso 1.0 --seed 42 --outdir ./out_scgift
 ```
 
-| Option | Default | Description |
+CUDA is selected automatically when available. Use `--device cpu` or `--device cuda` to select a device explicitly.
+
+<details>
+<summary><b>Training options and defaults</b></summary>
+
+| Option | Default | Purpose |
 | --- | --- | --- |
-| `--n_topics` | `30` | Number of topics and embedding dimensions. |
+| `--n_topics` | `30` | Topics and embedding dimensions. |
 | `--hid` | `512` | Encoder hidden-layer width. |
-| `--epochs` | `200` | Number of training epochs. |
+| `--epochs` | `200` | Training epochs. |
 | `--batch_size` | `256` | Cells per batch. |
 | `--lr` | `0.002` | Learning rate. |
-| `--alpha_iso` | `1.0` | Weight of the isoform likelihood. |
+| `--alpha_iso` | `1.0` | Isoform likelihood weight. |
 | `--beta_kl_max` | `1.0` | Maximum KL regularization weight. |
-| `--kl_anneal_epochs` | `50` | KL warm-up duration. |
+| `--kl_anneal_epochs` | `50` | KL warm-up epochs. |
 | `--dropout` | `0.1` | Encoder dropout probability. |
 | `--seed` | `42` | Random seed. |
-| `--device` | `auto` | Select `auto`, `cpu`, or `cuda`. |
+| `--device` | `auto` | `auto`, `cpu`, or `cuda`. |
 
-By default, scGIFT uses CUDA when available and otherwise uses the CPU. It enables deterministic PyTorch algorithms and disables TF32. See `scGIFT --help` for the complete interface.
+</details>
 
 ### Outputs
 
 | File | Contents |
 | --- | --- |
-| `embedding.npy` | Posterior means with shape `(n_cells, n_topics)`. |
-| `theta.npy` | Topic proportions with shape `(n_cells, n_topics)`; each row sums to one. |
-| `model.pt` | PyTorch model state dictionary. |
+| `embedding.npy` | Posterior means, `(n_cells, n_topics)`. |
+| `theta.npy` | Topic proportions, `(n_cells, n_topics)`; each row sums to one. |
+| `model.pt` | PyTorch state dictionary, including the isoform-to-gene mapping. |
 
-Output rows preserve the input cell order. Keep the training command, gene and isoform vocabularies, and `iso2gene` mapping alongside the checkpoint: the state dictionary alone does not store all information needed to reconstruct the model.
+Output rows preserve the input cell order. Keep the model configuration and cell, gene, and isoform identifiers with the checkpoint.
 
-## Development
+## Resources
+
+[scASprofiler documentation](https://scasprofiler.readthedocs.io/) · [Report an issue](https://github.com/1027victor/scTIER/issues) · [Source provenance](UPSTREAM.md)
+
+<details>
+<summary><b>Development</b></summary>
+
+From a local clone:
 
 ```bash
-git clone https://github.com/1027victor/scTIER.git
-cd scTIER
 pip install -e '.[dev]'
 CUDA_VISIBLE_DEVICES='' pytest -q
 python -m build
 ```
 
-The tests cover CLI argument forwarding, STAR preprocessing, AS ratio calculation, VAE-GAN training and imputation, scGIFT training on small count matrices, and input validation. GitHub Actions runs tests and package builds on Python 3.10 and 3.12.
+</details>
 
-## Support and contributing
-
-For questions, bug reports, or feature requests, open a [GitHub issue](https://github.com/1027victor/scTIER/issues). Include the command, package versions, error traceback, and a small reproducible example where possible. Pull requests for fixes, tests, and documentation improvements are welcome.
-
-## Attribution and citation
-
-The bundled scASprofiler code originates from [1027victor/scASprofiler](https://github.com/1027victor/scASprofiler). The scGIFT implementation originates from the author's gene–isoform topic fusion script. Source versions and packaging changes are recorded in [UPSTREAM.md](UPSTREAM.md).
-
-When reporting analyses, include the scTIER repository URL and the release or Git commit used. Consult the upstream scASprofiler documentation for any method-specific citation instructions.
-
-## License
-
-scTIER is distributed under the [Apache License 2.0](LICENSE).
+The bundled scASprofiler module is based on [1027victor/scASprofiler](https://github.com/1027victor/scASprofiler). scTIER is licensed under [Apache 2.0](LICENSE).
