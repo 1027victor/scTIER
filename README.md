@@ -13,12 +13,12 @@
 <p align="center">
   <a href="#installation">Installation</a> ·
   <a href="#quick-start">Quick start</a> ·
-  <a href="#scasprofiler">scASprofiler</a> ·
   <a href="#scgift">scGIFT</a> ·
+  <a href="#scasprofiler">scASprofiler</a> ·
   <a href="#resources">Resources</a>
 </p>
 
-scTIER combines **scASprofiler** for alternative splicing analysis and **scGIFT** for gene–isoform integration. Both modules are installed together and run through their own commands.
+scTIER combines **scGIFT** for gene–isoform integration and **scASprofiler** for alternative splicing analysis. Both modules are installed together and run through their own commands.
 
 ## Installation
 
@@ -54,10 +54,10 @@ pip install 'scTIER[ray] @ git+https://github.com/1027victor/scTIER.git'
 Use the module commands directly:
 
 ```bash
+scGIFT --help
 scASprofiler perp run --help
 scASprofiler impute train --help
 scASprofiler quantify --help
-scGIFT --help
 ```
 
 <details>
@@ -93,6 +93,62 @@ scGIFT \
 The example uses the default training settings and saves outputs in `out_isotopic/`.
 
 </details>
+
+## scGIFT
+
+Integrate gene and isoform counts with a two-view neural topic model to obtain cell embeddings and topic proportions.
+
+### Inputs
+
+| Argument | NumPy `.npy` array |
+| --- | --- |
+| `--gene_counts` | `(n_cells, n_genes)` — finite, nonnegative gene counts. |
+| `--iso_counts` | `(n_cells, n_isoforms)` — finite, nonnegative isoform counts. |
+| `--iso2gene` | `(n_isoforms,)` — integer gene-column indices from `0` to `n_genes - 1`. |
+
+Both count matrices must use the same cell order. The isoform columns must follow the order of `iso2gene`.
+
+### Run
+
+```bash
+scGIFT \
+  --gene_counts ./gene_counts.npy \
+  --iso_counts ./iso_counts.npy \
+  --iso2gene ./iso2gene.npy \
+  --n_topics 20 --hid 128 --epochs 300 --batch_size 64 \
+  --alpha_iso 1.0 --seed 42 --outdir ./out_scgift
+```
+
+CUDA is selected automatically when available. Use `--device cpu` or `--device cuda` to select a device explicitly.
+
+<details>
+<summary><b>Training options and defaults</b></summary>
+
+| Option | Default | Purpose |
+| --- | --- | --- |
+| `--n_topics` | `30` | Topics and embedding dimensions. |
+| `--hid` | `512` | Encoder hidden-layer width. |
+| `--epochs` | `200` | Training epochs. |
+| `--batch_size` | `256` | Cells per batch. |
+| `--lr` | `0.002` | Learning rate. |
+| `--alpha_iso` | `1.0` | Isoform likelihood weight. |
+| `--beta_kl_max` | `1.0` | Maximum KL regularization weight. |
+| `--kl_anneal_epochs` | `50` | KL warm-up epochs. |
+| `--dropout` | `0.1` | Encoder dropout probability. |
+| `--seed` | `42` | Random seed. |
+| `--device` | `auto` | `auto`, `cpu`, or `cuda`. |
+
+</details>
+
+### Outputs
+
+| File | Contents |
+| --- | --- |
+| `embedding.npy` | Posterior means, `(n_cells, n_topics)`. |
+| `theta.npy` | Topic proportions, `(n_cells, n_topics)`; each row sums to one. |
+| `model.pt` | PyTorch state dictionary, including the isoform-to-gene mapping. |
+
+Output rows preserve the input cell order. Keep the model configuration and cell, gene, and isoform identifiers with the checkpoint.
 
 ## scASprofiler
 
@@ -163,62 +219,6 @@ scASprofiler quantify \
 ```
 
 Writes `out_as/as_ratio.csv`, with junction counts normalized by their intron-group totals within each cell.
-
-## scGIFT
-
-Integrate gene and isoform counts with a two-view neural topic model to obtain cell embeddings and topic proportions.
-
-### Inputs
-
-| Argument | NumPy `.npy` array |
-| --- | --- |
-| `--gene_counts` | `(n_cells, n_genes)` — finite, nonnegative gene counts. |
-| `--iso_counts` | `(n_cells, n_isoforms)` — finite, nonnegative isoform counts. |
-| `--iso2gene` | `(n_isoforms,)` — integer gene-column indices from `0` to `n_genes - 1`. |
-
-Both count matrices must use the same cell order. The isoform columns must follow the order of `iso2gene`.
-
-### Run
-
-```bash
-scGIFT \
-  --gene_counts ./gene_counts.npy \
-  --iso_counts ./iso_counts.npy \
-  --iso2gene ./iso2gene.npy \
-  --n_topics 20 --hid 128 --epochs 300 --batch_size 64 \
-  --alpha_iso 1.0 --seed 42 --outdir ./out_scgift
-```
-
-CUDA is selected automatically when available. Use `--device cpu` or `--device cuda` to select a device explicitly.
-
-<details>
-<summary><b>Training options and defaults</b></summary>
-
-| Option | Default | Purpose |
-| --- | --- | --- |
-| `--n_topics` | `30` | Topics and embedding dimensions. |
-| `--hid` | `512` | Encoder hidden-layer width. |
-| `--epochs` | `200` | Training epochs. |
-| `--batch_size` | `256` | Cells per batch. |
-| `--lr` | `0.002` | Learning rate. |
-| `--alpha_iso` | `1.0` | Isoform likelihood weight. |
-| `--beta_kl_max` | `1.0` | Maximum KL regularization weight. |
-| `--kl_anneal_epochs` | `50` | KL warm-up epochs. |
-| `--dropout` | `0.1` | Encoder dropout probability. |
-| `--seed` | `42` | Random seed. |
-| `--device` | `auto` | `auto`, `cpu`, or `cuda`. |
-
-</details>
-
-### Outputs
-
-| File | Contents |
-| --- | --- |
-| `embedding.npy` | Posterior means, `(n_cells, n_topics)`. |
-| `theta.npy` | Topic proportions, `(n_cells, n_topics)`; each row sums to one. |
-| `model.pt` | PyTorch state dictionary, including the isoform-to-gene mapping. |
-
-Output rows preserve the input cell order. Keep the model configuration and cell, gene, and isoform identifiers with the checkpoint.
 
 ## Resources
 
